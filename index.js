@@ -40,7 +40,7 @@ db.find()
      //if nothing is getting pulled from funtion on top, this line will return a 500 error
      //with a message.
         res.status(500).json({
-         message:"Error while getting users, please report to administrators",
+         message: "The users information could not be retrieved.",
      })
  })
 })
@@ -54,13 +54,13 @@ server.post("/api/users", (req,res) => {
 //are false to return the response and the JSON file with message below:
 if (!req.body.name || !req.body.bio) {
     return res.status(400).json({
-        message: "Missing name or bio, make sure to enter them"
+        message: "Please provide name and bio for the user."
     })
 }
 
-//else will executed here if both the name and bio were entered by the users input
+//else will executed here if both the name and bio were entered by the users input and its valid
 else {
-    //here im calling function insert() from db.js file and and im passing req.body as argument
+    //here im calling function insert() from db.js file and and im passing req.body as argument to database
     db.insert(req.body)
     //here im sendng new user as json
     .then((user) => {
@@ -69,7 +69,7 @@ else {
     //here if an error ocurred it will pass a 500, and a json message
     .catch((error) => {
         res.status(500).json({
-            message:"error adding user"
+            message:"There was an error while saving the user to the database"
         })
     })
 
@@ -77,23 +77,27 @@ else {
 })
 
 //----------------------------------------------------------------------------
-
+//get an user by ID
 server.get("/api/users/:id", (req,res) => {
+    //HERE IM PASSING ID TO DATABASE AND RUNNING findById funtion
     db.findById(req.params.id)
+    //here is returning an 200 HTTP status code and sending specific user to database
     .then((user) => {
         if(user) {
             res.status(200).json(user)
         } 
+        //If the user with the specified id is not found:
         else{
            res.status(404).json({
-               message: "User not found"
+               message: "The user with the specified ID does not exist.",
            })
         }
         
     })
+    //If there's an error in retrieving the user from the database:
     .catch((error) => {
         res.status(500).json({
-            message: "Error obtaining access to user"
+            message: "The user information could not be retrieved."
         })
     })
 
@@ -105,7 +109,7 @@ server.put("/api/users/:id", (req, res) => {
     //if user does not put a name or bio in, it would return a 400 error and json with message
     if (!req.body.name || !req.body.bio) {
         return res.status(400).json({
-            message: "Please enter required information"
+            message: "Please provide name and bio for the user."
         })
     }
     //if user does put the info in, this will run
@@ -115,20 +119,46 @@ server.put("/api/users/:id", (req, res) => {
         //here im passing new user info as a json, and responding with a 200
         .then((updatedUser) => {
             if(updatedUser){
+                //HERE IM RETURNING AN 200 HTTP STATUS CODE, AND RETURNING NEW USER UDPATED
                 res.status(200).json(updatedUser)
             }
             else{
                 res.status(404).json({
-                    message: "the user could not be found"
+                    message: "The user with the specified ID does not exist."
                 })
             }
         })
         .catch((error) => {
             res.status(500).json({
-                message:"error updating user"
+                message:"The user information could not be modified."
             })
         })
     }
+})
+//------------------------------------------------------------------------------------------------------
+//Deleting a user
+server.delete("/api/users/:id", (req, res)=> {
+db.remove(req.params.id)
+//
+.then((userCount) => {
+    if (userCount > 0){
+        res.status(200).json({
+            message: "the user has been deleted"
+        })
+    }
+    else{
+        res.status(404).json({
+            message:"The user with the specified ID does not exist."
+        })
+    }
+})
+
+.catch((error) => {
+    res.status(500).json({
+        message: "The user could not be removed"
+    })
+})
+
 })
 
 
