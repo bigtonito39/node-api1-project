@@ -138,8 +138,12 @@ server.put("/api/users/:id", (req, res) => {
 //------------------------------------------------------------------------------------------------------
 //Deleting a user
 server.delete("/api/users/:id", (req, res)=> {
+//pasing user to funtion in the data base (db.js file)    
 db.remove(req.params.id)
-//
+
+//This is pretty much saying that if user id is greater than 0 to return a http status 200 and 
+//a message (note that deletion here happens on the database by the ID we are sending with
+// this line of code db.remove(req.params.id))
 .then((userCount) => {
     if (userCount > 0){
         res.status(200).json({
@@ -161,7 +165,7 @@ db.remove(req.params.id)
 
 })
 
-
+//------------------------------------------------------------------------------------------------------
 // start the server on localhost at port 3000
 server.listen(port, ()=> {
     console.log(`server started at http://localhost:${port}`)
