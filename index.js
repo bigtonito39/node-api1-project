@@ -99,10 +99,39 @@ server.get("/api/users/:id", (req,res) => {
 
 })
 
-
-
-
 //------------------------------------------------------------------------
+//updating the users name and bio
+server.put("/api/users/:id", (req, res) => {
+    //if user does not put a name or bio in, it would return a 400 error and json with message
+    if (!req.body.name || !req.body.bio) {
+        return res.status(400).json({
+            message: "Please enter required information"
+        })
+    }
+    //if user does put the info in, this will run
+    else{
+        //update function from db.js is being called, and passing an id and user through arguments
+        db.update(req.params.id, req.body)
+        //here im passing new user info as a json, and responding with a 200
+        .then((updatedUser) => {
+            if(updatedUser){
+                res.status(200).json(updatedUser)
+            }
+            else{
+                res.status(404).json({
+                    message: "the user could not be found"
+                })
+            }
+        })
+        .catch((error) => {
+            res.status(500).json({
+                message:"error updating user"
+            })
+        })
+    }
+})
+
+
 // start the server on localhost at port 3000
 server.listen(port, ()=> {
     console.log(`server started at http://localhost:${port}`)
